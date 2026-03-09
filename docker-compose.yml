@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # 1. Tu Base de Datos Relacional
+  mysql:
+    image: mysql:8.0
+    container_name: portfolio-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: portfolio_ecommerce
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # 2. Tu Base de Datos en Memoria (Para el carrito temporal)
+  redis:
+    image: redis:alpine
+    container_name: portfolio-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql_data:

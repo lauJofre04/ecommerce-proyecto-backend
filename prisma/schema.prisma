@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum RolUsuario {
+  ADMIN
+  CLIENTE
+}
+
+enum EstadoOrden {
+  PENDIENTE
+  PAGADA
+  CANCELADA
+}
+
+model Usuario {
+  id             Int         @id @default(autoincrement())
+  email          String      @unique
+  password       String      
+  nombre         String
+  apellido       String
+  rol            RolUsuario  @default(CLIENTE)
+  fechaCreacion  DateTime    @default(now())
+  ordenes        Orden[]
+}
+
+model Categoria {
+  id          Int        @id @default(autoincrement())
+  nombre      String
+  descripcion String?    @db.Text 
+  productos   Producto[]
+}
+
+model Producto {
+  id              Int            @id @default(autoincrement())
+  nombre          String
+  descripcion     String?        @db.Text
+  precio          Decimal        @db.Decimal(10, 2) 
+  stockDisponible Int            @default(0)
+  estado          Boolean        @default(true) 
+  imagenUrl      String?
+  categoriaId     Int
+  categoria       Categoria      @relation(fields: [categoriaId], references: [id])
+  detallesOrden   DetalleOrden[]
+}
+
+model Orden {
+  id          Int            @id @default(autoincrement())
+  total       Decimal        @db.Decimal(10, 2)
+  estado      EstadoOrden    @default(PENDIENTE)
+  fechaOrden  DateTime       @default(now())
+  usuarioId   Int
+  usuario     Usuario        @relation(fields: [usuarioId], references: [id])
+  detalles    DetalleOrden[]
+}
+
+model DetalleOrden {
+  id             Int      @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Decimal  @db.Decimal(10, 2) 
+  ordenId        Int
+  orden          Orden    @relation(fields: [ordenId], references: [id])
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+}
