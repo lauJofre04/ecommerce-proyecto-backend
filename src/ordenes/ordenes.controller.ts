@@ -37,4 +37,11 @@ export class OrdenesController {
   updateEstado(@Param('id') id: string, @Body() updateOrdenDto: UpdateOrdenDto) {
     return this.ordenesService.updateEstado(+id, updateOrdenDto);
   }
+  // GET: Traer todas las órdenes (idealmente protegido con un AdminGuard)
+  @Get('todas')
+  findAllTodas() {
+    return this.ordenesService.findAll();
+  }
+
+  
 }

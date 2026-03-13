@@ -21,4 +21,8 @@ export class CreateProductDto {
   @IsNumber()
   @IsNotEmpty()
   categoriaId: number; // Necesitamos saber a qué categoría pertenece
+
+  @IsOptional()
+  @IsString()
+  imagenUrl?: string; // Esto es para guardar la URL de la imagen si se sube
 }

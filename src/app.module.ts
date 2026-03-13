@@ -7,10 +7,20 @@ import { CategoriesModule } from './categories/categories.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { OrdenesModule } from './ordenes/ordenes.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
-  imports: [ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule],
+  imports: [ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // Esto crea el prefijo en la URL
+    }),
+    PaymentsModule
+  ],
   controllers: [AppController],
-  providers: [AppService],
-})
+  providers: [AppService]
+  },
+)
 export class AppModule {}

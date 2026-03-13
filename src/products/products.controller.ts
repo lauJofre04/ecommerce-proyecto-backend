@@ -17,7 +17,13 @@ export class ProductsController {
   @Post()
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('ADMIN')
-  create(@Body() createProductDto: CreateProductDto) {
+  @UseInterceptors(FileInterceptor('file')) // <-- REVISÁ QUE DIGA 'file'
+  async create(
+    @UploadedFile() file: Express.Multer.File, 
+    @Body() createProductDto: CreateProductDto
+  ) {
+    console.log('Archivo recibido:', file);
+    console.log('Datos recibidos:', createProductDto);
     return this.productsService.create(createProductDto);
   }
   @Post(':id/imagen') // <-- ¡ESTO es lo que faltaba!
@@ -56,6 +62,7 @@ export class ProductsController {
   @Patch(':id')
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('ADMIN')
+  @UseInterceptors(FileInterceptor('file')) // <-- Agregá esto si usás FormData para editar
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(+id, updateProductDto);
   }

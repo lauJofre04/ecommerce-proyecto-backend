@@ -36,8 +36,14 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
       usuario: {
+        id: user.id,      // <-- ¡ESTE ES EL PASE QUE FALTABA! ⚽
         nombre: user.nombre,
-        email: user.email
+        apellido: user.apellido, // Aprovechá y mandá el apellido también
+        email: user.email,
+        direccion: user.direccion, // Mandamos los campos nuevos
+        ciudad: user.ciudad,
+        provincia: user.provincia,
+        codigoPostal: user.codigoPostal
       }
     };
   }

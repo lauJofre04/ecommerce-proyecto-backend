@@ -30,6 +30,11 @@ model Usuario {
   password       String      
   nombre         String
   apellido       String
+  // 👇 NUEVOS CAMPOS DE ENVÍO (Opcionales para que no rompa registros viejos) 👇
+  direccion    String?
+  ciudad       String?
+  provincia    String?
+  codigoPostal String?
   rol            RolUsuario  @default(CLIENTE)
   fechaCreacion  DateTime    @default(now())
   ordenes        Orden[]

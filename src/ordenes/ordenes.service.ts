@@ -75,7 +75,19 @@ export class OrdenesService {
     });
   }
   
-
+  async findAll() {
+    return this.prisma.orden.findMany({
+      include: {
+        usuario: { select: { nombre: true, email: true, apellido: true } }, // Clave para que el admin sepa de quién es
+        detalles: {
+          include: { producto: true },
+        },
+      },
+      orderBy: {
+        fechaOrden: 'desc',
+      },
+    });
+  }
   // (Puedes dejar los demás métodos findAll, findOne vacíos por ahora)
   async findAllByUser(usuarioId: number) {
     return this.prisma.orden.findMany({

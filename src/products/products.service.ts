@@ -9,9 +9,28 @@ export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
   create(createProductDto: CreateProductDto) {
+    // Forzamos a que Prisma reciba números puros
     return this.prisma.producto.create({
-      // Usamos "as any" temporalmente hasta que configuremos bien el DTO
-      data: createProductDto, 
+      data: {
+        ...createProductDto,
+        categoriaId: Number(createProductDto.categoriaId),
+        precio: Number(createProductDto.precio),
+        stockDisponible: Number(createProductDto.stockDisponible),
+      },
+    });
+  }
+
+  update(id: number, updateProductDto: UpdateProductDto) {
+    const dataToUpdate: any = { ...updateProductDto };
+
+    // Convertimos solo lo que nos mandan a actualizar
+    if (dataToUpdate.categoriaId) dataToUpdate.categoriaId = Number(dataToUpdate.categoriaId);
+    if (dataToUpdate.precio) dataToUpdate.precio = Number(dataToUpdate.precio);
+    if (dataToUpdate.stockDisponible) dataToUpdate.stockDisponible = Number(dataToUpdate.stockDisponible);
+
+    return this.prisma.producto.update({
+      where: { id: Number(id) },
+      data: dataToUpdate,
     });
   }
 
@@ -32,12 +51,6 @@ export class ProductsService {
     });
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return this.prisma.producto.update({
-      where: { id },
-      data: updateProductDto,
-    });
-  }
 
   remove(id: number) {
     return this.prisma.producto.delete({
