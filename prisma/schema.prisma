@@ -38,6 +38,12 @@ model Usuario {
   rol            RolUsuario  @default(CLIENTE)
   fechaCreacion  DateTime    @default(now())
   ordenes        Orden[]
+  isVerified         Boolean   @default(false)
+  verificationToken  String?
+  resetPasswordToken String?
+  resetPasswordExpires DateTime?
+
+
 }
 
 model Categoria {

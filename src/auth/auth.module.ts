@@ -3,10 +3,12 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module'; // Importamos el módulo
 import { JwtModule } from '@nestjs/jwt';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     UsersModule,
+    MailModule,
     JwtModule.register({
       global: true,
       secret: 'MI_SECRETO_SUPER_SEGURO_123', // En producción, esto se guarda en el archivo .env

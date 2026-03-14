@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 // 1. Configuramos el cliente con tu Access Token (el de la foto)
 const client = new MercadoPagoConfig({ 
-  accessToken: 'APP_USR-5147918904495304-031318-180b715f8e4a7c4ca899972dbf95e7d6-3264812537' // Pegá acá el token de la imagen
+  accessToken: process.env.MPACCESS_TOKEN! // Pegá acá el token de la imagen
 });
 
 @Controller('payments')
