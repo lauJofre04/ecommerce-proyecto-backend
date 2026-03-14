@@ -28,9 +28,9 @@ export class PaymentsService {
           currency_id: 'ARS'
         })),
         back_urls: {
-          success: "http://localhost:4200/perfil",
-          failure: "http://localhost:4200/carrito",
-          pending: "http://localhost:4200/perfil"
+          success: "https://ecommerce-frontend-proyecto.vercel.app//perfil",
+          failure: "https://ecommerce-frontend-proyecto.vercel.app//carrito",
+          pending: "https://ecommerce-frontend-proyecto.vercel.app//perfil"
         },
         // 👇 EL DNI DE LA ORDEN: MP nos va a devolver este ID
         external_reference: ordenId.toString(), 
