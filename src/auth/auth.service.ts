@@ -16,39 +16,33 @@ export class AuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    // 1. Buscamos al usuario por su email
-    const user = await this.usersService.findOneByEmail(loginDto.email);
-    
-    // Si no existe, lanzamos un error 401. 
-    // Nota: El mensaje es genérico por seguridad, para no darle pistas a los atacantes.
-    if (!user) {
-      throw new UnauthorizedException('Credenciales inválidas');
+    const { email, password } = loginDto;
+
+    // 1. Buscamos al usuario en la base de datos
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { email },
+    });
+
+    if (!usuario) {
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    // 2. Comparamos la contraseña en texto plano (del DTO) con el hash guardado en MySQL
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
+    // 2. Comparamos la contraseña con bcrypt
+    const isPasswordValid = await bcrypt.compare(password, usuario.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    // 3. ¡Login exitoso! Armamos el "payload" (la info que viajará dentro de la pulsera VIP)
-    // Usualmente solo viaja el ID del usuario y su email. NUNCA contraseñas.
-    const payload = { email: user.email, sub: user.id, rol:  user.rol};
+    // 👇 3. ¡EL NUEVO CANDADO! Chequeamos si verificó el mail
+    if (!usuario.isVerified) {
+      throw new UnauthorizedException('Por favor, verificá tu correo electrónico antes de iniciar sesión. Revisá tu bandeja de entrada o spam.');
+    }
 
-    // 4. Firmamos el token y lo devolvemos junto con algunos datos básicos del usuario
+    // 4. Si pasó todas las pruebas, le generamos el token JWT
+    const payload = { sub: usuario.id, email: usuario.email, rol: usuario.rol };
     return {
       access_token: await this.jwtService.signAsync(payload),
-      usuario: {
-        id: user.id,      // <-- ¡ESTE ES EL PASE QUE FALTABA! ⚽
-        nombre: user.nombre,
-        apellido: user.apellido, // Aprovechá y mandá el apellido también
-        email: user.email,
-        direccion: user.direccion, // Mandamos los campos nuevos
-        ciudad: user.ciudad,
-        provincia: user.provincia,
-        codigoPostal: user.codigoPostal
-      }
     };
   }
   async register(data: any) { // (Usá tu DTO acá si lo tenías)
@@ -112,5 +106,62 @@ export class AuthService {
     });
 
     return { message: '¡Cuenta verificada con éxito! Ya podés iniciar sesión.' };
+  }
+  async forgotPassword(email: string) {
+    const usuario = await this.prisma.usuario.findUnique({ where: { email } });
+
+    // Si el usuario no existe, le decimos que todo ok de todas formas.
+    // Esto es por seguridad, para que un hacker no pueda adivinar qué mails están registrados.
+    if (!usuario) {
+      return { message: 'Si el correo existe en nuestro sistema, te enviaremos un enlace de recuperación.' };
+    }
+
+    // Generamos un token aleatorio y seguro
+    const resetToken = randomBytes(32).toString('hex');
+    
+    // Le damos 1 hora de vida (Date.now() + 1 hora en milisegundos)
+    const resetPasswordExpires = new Date(Date.now() + 3600000);
+
+    // Guardamos el token en la base de datos
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: resetPasswordExpires,
+      },
+    });
+
+    // Mandamos el mail
+    await this.mailService.enviarCorreoRecuperacion(usuario.email, usuario.nombre, resetToken);
+
+    return { message: 'Si el correo existe en nuestro sistema, te enviaremos un enlace de recuperación.' };
+  }
+  async resetPassword(token: string, nuevaPassword: string) {
+    // 1. Buscamos un usuario que tenga este token EXACTO y que la fecha de expiración sea MAYOR a la fecha actual (gt = greater than)
+    const usuario = await this.prisma.usuario.findFirst({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { gt: new Date() }, 
+      },
+    });
+
+    if (!usuario) {
+      throw new BadRequestException('El enlace es inválido o ya expiró.');
+    }
+
+    // 2. Encriptamos la nueva contraseña (igual que en el registro)
+    const hashedPassword = await bcrypt.hash(nuevaPassword, 10);
+
+    // 3. Actualizamos la base de datos: guardamos la nueva clave y "limpiamos" el token para que no se pueda volver a usar
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordToken: null,
+        resetPasswordExpires: null,
+      },
+    });
+
+    return { message: 'Contraseña actualizada con éxito.' };
   }
 }

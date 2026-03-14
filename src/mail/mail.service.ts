@@ -67,7 +67,6 @@ export class MailService {
         </div>
       `,
     };
-
     try {
       await this.transporter.sendMail(mailOptions);
       console.log('Correo de recuperación enviado a:', email);
@@ -75,4 +74,5 @@ export class MailService {
       console.error('Error al enviar el correo de recuperación:', error);
     }
   }
+  
 }

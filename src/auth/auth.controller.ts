@@ -18,10 +18,25 @@ export class AuthController {
   }
   // Endpoint para que el Frontend mande el token a validar
   @Post('verificar-email')
-  async verificarEmail(@Body('token') token: string) {
+  async verificarEmail(@Body('token') token: string) { // <-- Importante que diga 'token' aquí
     if (!token) {
-      throw new BadRequestException('No se proporcionó un token de verificación');
+      throw new BadRequestException('No se proporcionó un token');
     }
     return this.authService.verificarEmail(token);
+  }
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    return this.authService.forgotPassword(email);
+  }
+  @Post('reset-password')
+  async resetPassword(@Body() body: any) {
+    // Extraemos el token y la nueva contraseña del body que nos mandará Angular
+    const { token, nuevaPassword } = body;
+    
+    if (!token || !nuevaPassword) {
+      throw new BadRequestException('Faltan datos para restablecer la contraseña.');
+    }
+
+    return this.authService.resetPassword(token, nuevaPassword);
   }
 }

@@ -11,7 +11,11 @@ async function bootstrap() {
     transform: true,
     transformOptions: { enableImplicitConversion: true } // Lanza error si el usuario envía datos no permitidos
   }));
-  app.enableCors();
+  app.enableCors({
+    origin: 'http://localhost:4200',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
