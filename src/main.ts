@@ -12,9 +12,7 @@ async function bootstrap() {
     transformOptions: { enableImplicitConversion: true } // Lanza error si el usuario envía datos no permitidos
   }));
   app.enableCors({
-    origin: ['https://ecommerce-frontend-proyecto.vercel.app/',
-      'https://ecommerce-frontend-proyecto.vercel.app/'
-    ],
+    origin: 'https://ecommerce-frontend-proyecto.vercel.app',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
