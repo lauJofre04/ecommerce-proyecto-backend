@@ -22,8 +22,8 @@ export class RolesGuard implements CanActivate {
     const user = request.user;
     
     // --- MICRÓFONOS OCULTOS PARA DEBUGGEAR ---
-    console.log('Roles exigidos por la ruta:', requiredRoles);
-    console.log('Datos del usuario intentando entrar:', user);
+    
+    
     // --
     // 3. Comparamos el rol del token con los roles requeridos
     if (!user || !requiredRoles.includes(user.rol)) {

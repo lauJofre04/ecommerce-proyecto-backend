@@ -22,8 +22,8 @@ export class ProductsController {
     @UploadedFile() file: Express.Multer.File, 
     @Body() createProductDto: CreateProductDto
   ) {
-    console.log('Archivo recibido:', file);
-    console.log('Datos recibidos:', createProductDto);
+    
+    
     return this.productsService.create(createProductDto);
   }
   @Post(':id/imagen') // <-- ¡ESTO es lo que faltaba!
