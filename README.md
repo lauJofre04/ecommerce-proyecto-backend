@@ -41,7 +41,7 @@ npx prisma db push
 5. Iniciar la aplicación:
 npm run start:dev
 
-La API estará corriendo en http://localhost:3000/
+La API estará corriendo en https://ecommerce-proyecto-backend.onrender.com/
 
 ## 🚧 Notas de Desarrollo
 - *Integración de Pagos:* El flujo actual simula el guardado directo de la orden. La integración de la pasarela de Mercado Pago está estructurada a la espera de credenciales de producción.
