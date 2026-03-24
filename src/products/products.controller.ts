@@ -80,7 +80,7 @@ export class ProductsController {
     @Body() updateProductDto: any 
   ) {
     if (file) {
-      updateProductDto.imageName = file.filename;
+      updateProductDto.imagenUrl = file.filename;
     }
 
     // Transformamos los textos a números
