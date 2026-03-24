@@ -39,6 +39,8 @@ export class ProductsController {
       }
     })
   }))
+
+
   subirImagen(
     @Param('id') id: string, 
     @UploadedFile() file: Express.Multer.File
@@ -62,8 +64,28 @@ export class ProductsController {
   @Patch(':id')
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('ADMIN')
-  @UseInterceptors(FileInterceptor('file')) // <-- Agregá esto si usás FormData para editar
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        // Generamos un nombre único para que no se pisen las fotos
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = extname(file.originalname);
+        cb(null, `prod-${uniqueSuffix}${ext}`); 
+      }
+    })
+  }))
+  update(
+    @Param('id') id: string, 
+    @UploadedFile() file: Express.Multer.File, // <-- 1. Agregamos el archivo
+    @Body() updateProductDto: any // <-- 2. Usamos any temporalmente por si tu DTO es estricto
+  ) {
+    // 3. Si el usuario adjuntó una foto, le pasamos el nombre al DTO
+    if (file) {
+      updateProductDto.imageName = file.filename;
+    }
+    
+    // 4. Ahora sí, Prisma guarda todo: textos y el nombre de la foto nueva
     return this.productsService.update(+id, updateProductDto);
   }
 
