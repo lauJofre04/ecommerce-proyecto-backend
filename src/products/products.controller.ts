@@ -68,27 +68,34 @@ export class ProductsController {
     storage: diskStorage({
       destination: './uploads',
       filename: (req, file, cb) => {
-        // Generamos un nombre único para que no se pisen las fotos
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const ext = extname(file.originalname);
-        cb(null, `prod-${uniqueSuffix}${ext}`); 
+        cb(null, `prod-${uniqueSuffix}${ext}`);
       }
     })
   }))
   update(
     @Param('id') id: string, 
-    @UploadedFile() file: Express.Multer.File, // <-- 1. Agregamos el archivo
-    @Body() updateProductDto: any // <-- 2. Usamos any temporalmente por si tu DTO es estricto
+    @UploadedFile() file: Express.Multer.File, 
+    @Body() updateProductDto: any 
   ) {
-    // 3. Si el usuario adjuntó una foto, le pasamos el nombre al DTO
     if (file) {
       updateProductDto.imageName = file.filename;
     }
-    
-    // 4. Ahora sí, Prisma guarda todo: textos y el nombre de la foto nueva
+
+    // --- MAGIA: Convertimos los strings del FormData a Números ---
+    if (updateProductDto.precio) {
+      updateProductDto.precio = Number(updateProductDto.precio);
+    }
+    if (updateProductDto.stockDisponible) {
+      updateProductDto.stockDisponible = Number(updateProductDto.stockDisponible);
+    }
+    if (updateProductDto.categoriaId) {
+      updateProductDto.categoriaId = Number(updateProductDto.categoriaId);
+    }
+
     return this.productsService.update(+id, updateProductDto);
   }
-
   @Delete(':id')
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('ADMIN')
