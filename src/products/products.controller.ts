@@ -83,15 +83,22 @@ export class ProductsController {
       updateProductDto.imageName = file.filename;
     }
 
-    // --- MAGIA: Convertimos los strings del FormData a Números ---
+    // Transformamos los textos a números
     if (updateProductDto.precio) {
       updateProductDto.precio = Number(updateProductDto.precio);
     }
     if (updateProductDto.stockDisponible) {
       updateProductDto.stockDisponible = Number(updateProductDto.stockDisponible);
     }
+
+    // --- MAGIA NUEVA: Traducimos la categoría para Prisma ---
     if (updateProductDto.categoriaId) {
-      updateProductDto.categoriaId = Number(updateProductDto.categoriaId);
+      // 1. Armamos el objeto relacional que Prisma exige
+      updateProductDto.categoria = {
+        connect: { id: Number(updateProductDto.categoriaId) }
+      };
+      // 2. Eliminamos la propiedad vieja para que Prisma no se queje de que es "Unknown"
+      delete updateProductDto.categoriaId;
     }
 
     return this.productsService.update(+id, updateProductDto);
