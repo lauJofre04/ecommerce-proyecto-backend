@@ -42,6 +42,11 @@ export class MigrationService {
       // 2. Iteramos sobre cada producto
       for (const producto of productos) {
         try {
+          // Verificamos que imagenUrl exista (el filtro de Prisma lo garantiza, pero TypeScript no lo sabe)
+          if (!producto.imagenUrl) {
+            continue;
+          }
+
           // Verificamos si la imagenUrl ya es un link de Cloudinary
           if (producto.imagenUrl.startsWith('http')) {
             this.logger.log(
