@@ -7,12 +7,14 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard,RolesGuard)
@@ -29,26 +31,25 @@ export class ProductsController {
   @Post(':id/imagen') // <-- ¡ESTO es lo que faltaba!
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('ADMIN')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = extname(file.originalname);
-        cb(null, `${req.params.id}-${uniqueSuffix}${ext}`);
-      }
-    })
-  }))
-
-
-  subirImagen(
+  @UseInterceptors(FileInterceptor('file'))
+  async subirImagen(
     @Param('id') id: string, 
     @UploadedFile() file: Express.Multer.File
   ) {
     if (!file) {
       throw new BadRequestException('Asegúrate de enviar un archivo de imagen.');
     }
-    return this.productsService.actualizarImagen(+id, file.filename);
+    
+    try {
+      const cloudinaryResult: any = await this.cloudinaryService.uploadImage(
+        file.buffer,
+        file.originalname
+      );
+      
+      return this.productsService.actualizarImagen(+id, cloudinaryResult.secure_url);
+    } catch (error) {
+      throw new BadRequestException('Error al subir la imagen a Cloudinary: ' + error.message);
+    }
   }
 
   @Get()
@@ -64,23 +65,22 @@ export class ProductsController {
   @Patch(':id')
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('ADMIN')
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: './uploads',
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = extname(file.originalname);
-        cb(null, `prod-${uniqueSuffix}${ext}`);
-      }
-    })
-  }))
-  update(
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
     @Param('id') id: string, 
     @UploadedFile() file: Express.Multer.File, 
     @Body() updateProductDto: any 
   ) {
     if (file) {
-      updateProductDto.imagenUrl = file.filename;
+      try {
+        const cloudinaryResult: any = await this.cloudinaryService.uploadImage(
+          file.buffer,
+          file.originalname
+        );
+        updateProductDto.imagenUrl = cloudinaryResult.secure_url;
+      } catch (error) {
+        throw new BadRequestException('Error al subir la imagen a Cloudinary: ' + error.message);
+      }
     }
 
     // Transformamos los textos a números

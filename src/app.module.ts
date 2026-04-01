@@ -10,9 +10,11 @@ import { OrdenesModule } from './ordenes/ordenes.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PaymentsModule } from './payments/payments.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { MigrationModule } from './migration/migration.module';
 
 @Module({
-  imports: [ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule,
+  imports: [ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule, CloudinaryModule, MigrationModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // Esto crea el prefijo en la URL
