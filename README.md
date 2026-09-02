@@ -43,6 +43,16 @@ npm run start:dev
 
 La API estará corriendo en https://ecommerce-proyecto-backend.onrender.com/
 
+## 🌱 Cargar productos de demostración
+
+Con la variable `DATABASE_URL` configurada y la base de datos accesible, ejecutar desde `ecommerce-backend`:
+
+```bash
+npm run prisma:seed
+```
+
+El seed crea 30 productos tecnológicos distribuidos en cinco categorías, con imágenes y stock de ejemplo. Es seguro ejecutarlo más de una vez: busca cada producto por nombre y omite los que ya existen, sin borrar ni modificar los productos cargados manualmente.
+
 ## 🚧 Notas de Desarrollo
 - *Integración de Pagos:* El flujo actual simula el guardado directo de la orden. La integración de la pasarela de Mercado Pago está estructurada a la espera de credenciales de producción.
 
