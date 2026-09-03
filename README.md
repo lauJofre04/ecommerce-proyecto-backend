@@ -53,6 +53,12 @@ npm run prisma:seed
 
 El seed crea 31 productos tecnológicos distribuidos en cinco categorías, con imágenes y stock de ejemplo. Es seguro ejecutarlo más de una vez: busca cada producto por nombre y omite los que ya existen, sin borrar ni modificar los productos cargados manualmente.
 
+En Render, configurar el **Build Command** así para que el seed se ejecute durante cada deploy:
+
+```bash
+npm install --legacy-peer-deps && npm run render:build
+```
+
 ## 🚧 Notas de Desarrollo
 - *Integración de Pagos:* El flujo actual simula el guardado directo de la orden. La integración de la pasarela de Mercado Pago está estructurada a la espera de credenciales de producción.
 
