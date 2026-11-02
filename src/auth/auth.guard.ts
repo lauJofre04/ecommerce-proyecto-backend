@@ -24,9 +24,8 @@ export class AuthGuard implements CanActivate {
     
     try {
       // 3. Verificamos que el token sea auténtico y no haya sido alterado
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'MI_SECRETO_SUPER_SEGURO_123' // Debe ser el mismo que pusimos en el AuthModule
-      });
+      // El secret es el configurado en AuthModule (JWT_SECRET)
+      const payload = await this.jwtService.verifyAsync(token);
       
       // 4. Si todo está bien, pegamos los datos del usuario (el payload) en la request
       // para que el Controlador sepa quién está haciendo la petición
