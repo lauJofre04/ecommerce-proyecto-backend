@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { MailService } from '../mail/mail.service';
 import * as bcrypt from 'bcrypt'; 
@@ -45,7 +46,7 @@ export class AuthService {
       access_token: await this.jwtService.signAsync(payload),
     };
   }
-  async register(data: any) { // (Usá tu DTO acá si lo tenías)
+  async register(data: RegisterDto) {
     
     // 1. Verificamos que el email no exista
     const usuarioExistente = await this.prisma.usuario.findUnique({
