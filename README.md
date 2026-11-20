@@ -64,3 +64,12 @@ npm install --legacy-peer-deps && npm run render:build
 
 ## 🧑‍💻 Autor
 **Lautaro Jofré** - *Full-Stack Developer* - [www.linkedin.com/in/lautaro-jofre]
+## Despliegue en Render y base de datos
+
+- **Build:** `npm run render:build` genera el cliente de Prisma, aplica las migraciones pendientes (`prisma migrate deploy`) y compila. Ya **no** carga datos de ejemplo en cada deploy.
+- **Datos de ejemplo (opcional, a mano):** `npm run prisma:seed` con `DATABASE_URL` apuntando a la base. Es idempotente: no duplica productos.
+- **Usuario administrador:**
+  ```bash
+  ADMIN_EMAIL=admin@ejemplo.com ADMIN_PASSWORD="una-clave-de-12-o-mas-caracteres" npm run create-admin
+  ```
+  Si el email ya existe, lo promueve a `ADMIN`, lo marca como verificado y cambia su contraseña.
