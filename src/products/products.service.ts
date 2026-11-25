@@ -3,6 +3,9 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma/prisma.service';
 
+const POR_PAGINA_DEFECTO = 12;
+const MAX_POR_PAGINA = 100;
+
 @Injectable()
 export class ProductsService {
   // 1. Inyectamos tu servicio de base de datos
@@ -34,12 +37,25 @@ export class ProductsService {
     });
   }
 
-  findAll() {
-    return this.prisma.producto.findMany({
-      include: {
-        categoria: true, // ¡Magia! Hace un JOIN automático con la tabla de Categorías
-      }
-    });
+  // Sin parámetros devuelve el arreglo completo (compatible con el frontend actual).
+  // Con `page` y/o `limit` devuelve una página: { data, total, page, limit, totalPages }.
+  async findAll(page?: number, limit?: number) {
+    const include = { categoria: true }; // JOIN con la tabla de Categorías
+    const orderBy = { id: 'asc' as const }; // orden estable entre páginas
+
+    if (page === undefined && limit === undefined) {
+      return this.prisma.producto.findMany({ include, orderBy });
+    }
+
+    const paginaActual = Math.max(1, Math.trunc(page ?? 1) || 1);
+    const tamano = Math.min(MAX_POR_PAGINA, Math.max(1, Math.trunc(limit ?? POR_PAGINA_DEFECTO) || POR_PAGINA_DEFECTO));
+
+    const [total, data] = await Promise.all([
+      this.prisma.producto.count(),
+      this.prisma.producto.findMany({ include, orderBy, skip: (paginaActual - 1) * tamano, take: tamano }),
+    ]);
+
+    return { data, total, page: paginaActual, limit: tamano, totalPages: Math.max(1, Math.ceil(total / tamano)) };
   }
 
   findOne(id: number) {

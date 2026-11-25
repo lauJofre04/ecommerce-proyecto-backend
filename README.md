@@ -2,9 +2,24 @@
 
 ![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
 Una API RESTful robusta y escalable construida con NestJS y Prisma ORM para gestionar el backend de un e-commerce de tecnología. 
+
+## 🏗️ Arquitectura
+
+```mermaid
+flowchart LR
+  U([Cliente / Admin]) --> FE[Angular 21<br/>Vercel]
+  FE -- "HTTPS + JWT" --> API[NestJS API<br/>Render]
+  API --> ORM[Prisma ORM]
+  ORM --> DB[(MySQL<br/>Aiven)]
+  API --> IMG[Cloudinary<br/>imágenes]
+  API --> MP[Mercado Pago<br/>pagos]
+  API --> MAIL[SMTP<br/>verificación y recuperación]
+```
+
+Módulos de `src/`: `auth`, `users`, `products`, `categories`, `ordenes`, `payments`, `mail`, `cloudinary`, `prisma`. Validación de entrada con `ValidationPipe` (class-validator) y rutas protegidas por guards de JWT y rol.
 
 ## ✨ Funcionalidades (Endpoints)
 
@@ -17,7 +32,7 @@ Una API RESTful robusta y escalable construida con NestJS y Prisma ORM para gest
 
 ## 🗄️ Estructura de la Base de Datos
 
-El proyecto utiliza PostgreSQL. Los modelos principales incluyen:
+El proyecto utiliza MySQL (en producción, Aiven). Los modelos principales incluyen:
 - `Usuario` (id, nombre, email, password, rol, etc.)
 - `Producto` (id, nombre, precio, stockDisponible, categoriaId)
 - `Categoria` (id, nombre)
@@ -33,7 +48,7 @@ git clone https://github.com/lauJofre04/ecommerce-proyecto-backend.git
 npm install
 
 3. Configurar variables de entorno:
-Renombrar el archivo .env.example a .env (asegurate de tener ambos) y configurar la variable DATABASE_URL con tu conexión a PostgreSQL y tu JWT_SECRET.
+Renombrar el archivo .env.example a .env (asegurate de tener ambos) y configurar la variable DATABASE_URL con tu conexión a MySQL y tu JWT_SECRET.
 
 4. Sincronizar la base de datos con Prisma:
 npx prisma db push
@@ -60,7 +75,7 @@ npm install --legacy-peer-deps && npm run render:build
 ```
 
 ## 🚧 Notas de Desarrollo
-- *Integración de Pagos:* El flujo actual simula el guardado directo de la orden. La integración de la pasarela de Mercado Pago está estructurada a la espera de credenciales de producción.
+- *Pagos:* el checkout crea la orden y genera una preferencia de pago de Mercado Pago (`payments/create-preference`).
 
 ## 🧑‍💻 Autor
 **Lautaro Jofré** - *Full-Stack Developer* - [www.linkedin.com/in/lautaro-jofre]
