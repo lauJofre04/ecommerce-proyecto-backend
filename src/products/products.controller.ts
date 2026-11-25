@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, BadRequestException, Query } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { RolesGuard } from '../auth/roles.guard'; // <-- Nuevo
 import { Roles } from '../auth/roles.decorator';
@@ -53,8 +53,11 @@ export class ProductsController {
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+    return this.productsService.findAll(
+      page !== undefined ? Number(page) : undefined,
+      limit !== undefined ? Number(limit) : undefined,
+    );
   }
 
   @Get(':id')
