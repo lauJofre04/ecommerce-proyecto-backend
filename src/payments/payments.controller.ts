@@ -1,4 +1,5 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
@@ -14,6 +15,8 @@ export class PaymentsController {
   }
 
   // 👇 LA RUTA QUE ESCUCHA A MERCADO PAGO
+  // Las notificaciones de Mercado Pago no deben ser rechazadas por el límite de peticiones
+  @SkipThrottle()
   @Post('webhook')
   @HttpCode(HttpStatus.OK) // MP exige que le respondamos rápido con un 200 OK
   async webhook(@Body() body: any) {
