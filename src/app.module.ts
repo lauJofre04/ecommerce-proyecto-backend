@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductsModule } from './products/products.module';
@@ -14,7 +16,10 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MigrationModule } from './migration/migration.module';
 
 @Module({
-  imports: [ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule, CloudinaryModule, MigrationModule,
+  imports: [
+    // Límite general: 100 peticiones por minuto por IP. Login y registro tienen uno más estricto (@Throttle).
+    ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: 100 }]),
+    ProductsModule, PrismaModule, CategoriesModule, UsersModule, AuthModule, OrdenesModule, CloudinaryModule, MigrationModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // Esto crea el prefijo en la URL
@@ -22,7 +27,7 @@ import { MigrationModule } from './migration/migration.module';
     PaymentsModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }]
   },
 )
 export class AppModule {}
